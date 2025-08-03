@@ -1,0 +1,533 @@
+.navigation {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+.nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+}
+
+@media (max-width: 1400px) {
+  .nav-container {
+    max-width: 1200px;
+    padding: 0 30px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .nav-container {
+    max-width: 1000px;
+    padding: 0 24px;
+    height: 65px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-container {
+    padding: 0 16px;
+    height: 60px;
+  }
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.brand-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+  font-weight: 700;
+  font-size: 26px;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+  .brand-link {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .brand-link {
+    font-size: 22px;
+  }
+}
+
+.brand-link:hover {
+  transform: scale(1.05);
+}
+
+.brand-icon {
+  font-size: 32px;
+  margin-right: 12px;
+  animation: pulse 2s infinite;
+}
+
+@media (max-width: 1024px) {
+  .brand-icon {
+    font-size: 28px;
+    margin-right: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .brand-icon {
+    font-size: 24px;
+    margin-right: 8px;
+  }
+}
+
+.brand-text {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  letter-spacing: -0.5px;
+}
+
+@media (max-width: 768px) {
+  .brand-text {
+    display: none;
+  }
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .nav-menu {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-menu {
+    gap: 4px;
+  }
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+  .nav-item {
+    padding: 10px 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-item {
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-item {
+    padding: 6px 8px;
+  }
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.nav-item:hover::before {
+  left: 100%;
+}
+
+.nav-item:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.nav-item.active {
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.nav-icon {
+  font-size: 20px;
+  margin-right: 8px;
+}
+
+@media (max-width: 1024px) {
+  .nav-icon {
+    font-size: 18px;
+    margin-right: 6px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-icon {
+    font-size: 16px;
+    margin-right: 0;
+  }
+}
+
+.nav-label {
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .nav-label {
+    display: none;
+  }
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .nav-user {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-user {
+    gap: 8px;
+  }
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  min-width: 0;
+  flex: 1;
+}
+
+@media (max-width: 1024px) {
+  .user-info {
+    gap: 10px;
+  }
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b6b, #feca57);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  animation: glow 3s ease-in-out infinite alternate;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+  .user-avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .user-details {
+    display: none;
+  }
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+}
+
+@media (max-width: 1024px) {
+  .user-name {
+    font-size: 13px;
+    max-width: 100px;
+  }
+}
+
+.user-email {
+  font-size: 12px;
+  opacity: 0.8;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+}
+
+@media (max-width: 1024px) {
+  .user-email {
+    font-size: 11px;
+    max-width: 100px;
+  }
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+  .logout-btn {
+    padding: 8px 12px;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 768px) {
+  .logout-btn {
+    padding: 8px 10px;
+  }
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.logout-icon {
+  font-size: 16px;
+}
+
+@media (max-width: 1024px) {
+  .logout-icon {
+    font-size: 14px;
+  }
+}
+
+.logout-text {
+  font-size: 14px;
+}
+
+@media (max-width: 1024px) {
+  .logout-text {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .logout-text {
+    display: none;
+  }
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  to {
+    box-shadow: 0 4px 25px rgba(255, 107, 107, 0.4);
+  }
+}
+
+/* Large Desktop Optimization */
+@media (min-width: 1400px) {
+  .nav-container {
+    max-width: 1600px;
+    padding: 0 50px;
+    height: 75px;
+  }
+  
+  .brand-link {
+    font-size: 28px;
+  }
+  
+  .brand-icon {
+    font-size: 34px;
+    margin-right: 14px;
+  }
+  
+  .nav-item {
+    padding: 14px 22px;
+  }
+  
+  .nav-icon {
+    font-size: 22px;
+    margin-right: 10px;
+  }
+  
+  .nav-label {
+    font-size: 15px;
+  }
+  
+  .user-avatar {
+    width: 42px;
+    height: 42px;
+    font-size: 17px;
+  }
+  
+  .user-name {
+    font-size: 15px;
+    max-width: 140px;
+  }
+  
+  .user-email {
+    font-size: 13px;
+    max-width: 140px;
+  }
+  
+  .logout-btn {
+    padding: 12px 18px;
+    gap: 10px;
+  }
+  
+  .logout-icon {
+    font-size: 18px;
+  }
+  
+  .logout-text {
+    font-size: 15px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .brand-icon,
+  .user-avatar {
+    animation: none;
+  }
+
+  .nav-item::before {
+    display: none;
+  }
+
+  .nav-item:hover,
+  .logout-btn:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .navigation {
+    background: #000;
+    border-bottom: 2px solid #fff;
+  }
+
+  .nav-item {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .nav-item.active {
+    background: #fff;
+    color: #000;
+  }
+
+  .logout-btn {
+    border: 2px solid #fff;
+  }
+}
+
+/* Focus styles for accessibility */
+.brand-link:focus,
+.nav-item:focus,
+.logout-btn:focus {
+  outline: 2px solid #ffd700;
+  outline-offset: 2px;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

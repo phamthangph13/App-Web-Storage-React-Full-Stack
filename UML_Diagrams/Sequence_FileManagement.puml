@@ -1,0 +1,124 @@
+@startuml Sequence_FileManagement
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam sequence {
+    ArrowColor #2E86AB
+    ActorBorderColor #2E86AB
+    LifeLineBorderColor #2E86AB
+    ParticipantBorderColor #2E86AB
+    ParticipantBackgroundColor #E8F4FD
+}
+
+title Biểu đồ Tiến trình - Luồng Quản lý File
+
+actor "User" as U
+participant "Frontend" as F
+participant "FileController" as FC
+participant "FileService" as FS
+participant "FileRepository" as FR
+participant "JwtAuthenticationFilter" as JWT
+participant "FileSystem" as FSYS
+participant "Database" as DB
+
+== Upload File ==
+
+U -> F: Chọn file
+F -> F: Validate file
+F -> FC: POST /files/upload (multipart)
+JWT -> JWT: Validate JWT token
+JWT -> FC: Authentication object
+FC -> FS: uploadFile(file, userEmail)
+FS -> FS: validateFileType(file)
+FS -> FS: checkFileSize(file)
+FS -> FS: checkUserStorage(userEmail)
+FS -> FS: generateUniqueFilename()
+FS -> FSYS: saveFile(file, filename)
+FSYS --> FS: File saved
+FS -> FS: createFileMetadata(file, userEmail)
+FS -> FR: save(fileMetadata)
+FR -> DB: Insert file metadata
+DB --> FR: Saved metadata
+FR --> FS: FileMetadata object
+FS -> FS: createFileUploadResponse(metadata)
+FS --> FC: FileUploadResponse
+FC --> F: 200 OK + Response
+F --> U: Hiển thị thành công
+
+== Download File ==
+
+U -> F: Click download file
+F -> FC: GET /files/download/{fileId}
+JWT -> JWT: Validate JWT token
+JWT -> FC: Authentication object
+FC -> FS: downloadFile(fileId, userEmail)
+FS -> FR: findById(fileId)
+FR -> DB: Query file metadata
+DB --> FR: FileMetadata
+FR --> FS: FileMetadata object
+FS -> FS: validateFileAccess(metadata, userEmail)
+FS -> FSYS: readFile(metadata.filePath)
+FSYS --> FS: File stream
+FS -> FS: createInputStreamResource(stream)
+FS --> FC: InputStreamResource
+FC --> F: 200 OK + File stream
+F --> U: Download file
+
+== Get File List ==
+
+U -> F: Mở trang file list
+F -> FC: GET /files/my-files
+JWT -> JWT: Validate JWT token
+JWT -> FC: Authentication object
+FC -> FS: getUserFiles(userEmail)
+FS -> FR: findByUserId(userId)
+FR -> DB: Query files by user
+DB --> FR: List<FileMetadata>
+FR --> FS: File list
+FS -> FS: convertToFileUploadResponse(list)
+FS --> FC: List<FileUploadResponse>
+FC --> F: 200 OK + File list
+F --> U: Hiển thị danh sách file
+
+== Delete File ==
+
+U -> F: Click delete file
+F -> FC: DELETE /files/{fileId}
+JWT -> JWT: Validate JWT token
+JWT -> FC: Authentication object
+FC -> FS: deleteFile(fileId, userEmail)
+FS -> FR: findById(fileId)
+FR -> DB: Query file metadata
+DB --> FR: FileMetadata
+FR --> FS: FileMetadata object
+FS -> FS: validateFileAccess(metadata, userEmail)
+FS -> FSYS: deleteFile(metadata.filePath)
+FSYS --> FS: File deleted
+FS -> FR: deleteById(fileId)
+FR -> DB: Delete file metadata
+DB --> FR: Deleted
+FR --> FS: Success
+FS --> FC: Success message
+FC --> F: 200 OK + Success
+F --> U: Hiển thị thông báo xóa thành công
+
+== Preview File ==
+
+U -> F: Click preview file
+F -> FC: GET /files/preview/{fileId}
+JWT -> JWT: Validate JWT token
+JWT -> FC: Authentication object
+FC -> FS: previewFile(fileId, userEmail)
+FS -> FR: findById(fileId)
+FR -> DB: Query file metadata
+DB --> FR: FileMetadata
+FR --> FS: FileMetadata object
+FS -> FS: validateFileAccess(metadata, userEmail)
+FS -> FS: checkPreviewSupport(metadata.fileType)
+FS -> FSYS: readFile(metadata.filePath)
+FSYS --> FS: File stream
+FS -> FS: createPreviewStream(stream, fileType)
+FS --> FC: InputStreamResource
+FC --> F: 200 OK + Preview stream
+F --> U: Hiển thị preview
+
+@enduml 

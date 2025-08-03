@@ -1,0 +1,110 @@
+@startuml Activity_UploadFile
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam activity {
+    BackgroundColor #E8F4FD
+    BorderColor #2E86AB
+    FontColor #2E86AB
+}
+
+title Biểu đồ Hoạt động - Quy trình Upload File
+
+start
+
+:Người dùng chọn file;
+
+:Frontend validate file;
+
+if (File hợp lệ?) then (Có)
+    :Hiển thị progress bar;
+    :Chuẩn bị FormData;
+    :Thêm file vào request;
+    :Thêm JWT token vào header;
+    
+    :Gửi request upload;
+    
+    :Backend nhận request;
+    :Xác thực JWT token;
+    
+    if (Token hợp lệ?) then (Có)
+        :Extract user info từ token;
+        :Validate file type;
+        
+        if (File type được phép?) then (Có)
+            :Kiểm tra dung lượng file;
+            
+            if (Dung lượng OK?) then (Có)
+                :Kiểm tra dung lượng còn lại của user;
+                
+                if (Còn dung lượng?) then (Có)
+                    :Tạo unique filename;
+                    :Lưu file vào storage;
+                    
+                    if (Lưu file thành công?) then (Có)
+                        :Tạo FileMetadata object;
+                        :Set user ID;
+                        :Set file path;
+                        :Set file size;
+                        :Set upload time;
+                        :Set file type;
+                        
+                        :Lưu metadata vào database;
+                        
+                        if (Lưu DB thành công?) then (Có)
+                            :Tạo FileUploadResponse;
+                            :Thêm thông tin file;
+                            :Thêm download URL;
+                            
+                            :Trả về response thành công;
+                            
+                            :Frontend nhận response;
+                            :Cập nhật UI;
+                            :Hiển thị thông báo thành công;
+                            
+                            stop
+                        else (Không)
+                            :Xóa file đã upload;
+                            :Trả về lỗi "Lưu metadata thất bại";
+                        endif
+                    else (Không)
+                        :Trả về lỗi "Upload file thất bại";
+                    endif
+                else (Không)
+                    :Trả về lỗi "Hết dung lượng lưu trữ";
+                endif
+            else (Không)
+                :Trả về lỗi "File quá lớn";
+            endif
+        else (Không)
+            :Trả về lỗi "Loại file không được phép";
+        endif
+    else (Không)
+        :Trả về lỗi "Token không hợp lệ";
+    endif
+else (Không)
+    :Hiển thị lỗi "File không hợp lệ";
+endif
+
+:Frontend hiển thị thông báo lỗi;
+
+stop
+
+note right of "Validate file type"
+  - Kiểm tra extension
+  - Validate MIME type
+  - Chặn file nguy hiểm
+end note
+
+note right of "Tạo unique filename"
+  - UUID + timestamp
+  - Giữ nguyên extension
+  - Tránh conflict
+end note
+
+note right of "Lưu file vào storage"
+  - Local file system
+  - Có thể mở rộng sang S3
+  - Backup strategy
+end note
+
+@enduml 

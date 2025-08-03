@@ -1,0 +1,144 @@
+@startuml DataFlow
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam component {
+    BackgroundColor #E8F4FD
+    BorderColor #2E86AB
+    FontColor #2E86AB
+}
+
+title Biểu đồ Luồng Dữ liệu - Hệ thống P2P
+
+!define EXTERNAL_ENTITY class
+!define PROCESS class
+!define DATA_STORE class
+
+EXTERNAL_ENTITY "Người dùng\n(Mobile/Web)" as User
+EXTERNAL_ENTITY "Email Server" as EmailServer
+
+PROCESS "Frontend\n(React/React Native)" as Frontend
+PROCESS "API Gateway\n(Nginx)" as Gateway
+PROCESS "Auth Controller" as AuthController
+PROCESS "File Controller" as FileController
+PROCESS "Auth Service" as AuthService
+PROCESS "File Service" as FileService
+PROCESS "Email Service" as EmailService
+PROCESS "JWT Filter" as JWTFilter
+
+DATA_STORE "User Database\n(MongoDB)" as UserDB
+DATA_STORE "File Metadata\n(MongoDB)" as FileDB
+DATA_STORE "File Storage\n(Local/S3)" as FileStorage
+DATA_STORE "Reset Token\n(MongoDB)" as TokenDB
+
+' Authentication Flow
+User --> Frontend : 1. Login/Register Request
+Frontend --> Gateway : 2. HTTP Request
+Gateway --> AuthController : 3. Route to Auth
+AuthController --> AuthService : 4. Process Auth
+AuthService --> UserDB : 5. Query/Update User
+UserDB --> AuthService : 6. User Data
+AuthService --> JWTFilter : 7. Generate Token
+JWTFilter --> AuthService : 8. JWT Token
+AuthService --> AuthController : 9. Auth Response
+AuthController --> Gateway : 10. HTTP Response
+Gateway --> Frontend : 11. Response
+Frontend --> User : 12. Auth Result
+
+' Password Reset Flow
+User --> Frontend : 13. Forgot Password
+Frontend --> Gateway : 14. Reset Request
+Gateway --> AuthController : 15. Route to Auth
+AuthController --> AuthService : 16. Process Reset
+AuthService --> UserDB : 17. Find User
+UserDB --> AuthService : 18. User Data
+AuthService --> TokenDB : 19. Save Reset Token
+TokenDB --> AuthService : 20. Token Saved
+AuthService --> EmailService : 21. Send Reset Email
+EmailService --> EmailServer : 22. SMTP Request
+EmailServer --> User : 23. Reset Email
+
+' File Upload Flow
+User --> Frontend : 24. Upload File
+Frontend --> Gateway : 25. Multipart Request
+Gateway --> JWTFilter : 26. Validate Token
+JWTFilter --> FileController : 27. Authenticated Request
+FileController --> FileService : 28. Process Upload
+FileService --> FileStorage : 29. Save File
+FileStorage --> FileService : 30. File Saved
+FileService --> FileDB : 31. Save Metadata
+FileDB --> FileService : 32. Metadata Saved
+FileService --> FileController : 33. Upload Response
+FileController --> Gateway : 34. HTTP Response
+Gateway --> Frontend : 35. Upload Result
+Frontend --> User : 36. Upload Success
+
+' File Download Flow
+User --> Frontend : 37. Download Request
+Frontend --> Gateway : 38. Download Request
+Gateway --> JWTFilter : 39. Validate Token
+JWTFilter --> FileController : 40. Authenticated Request
+FileController --> FileService : 41. Process Download
+FileService --> FileDB : 42. Get File Metadata
+FileDB --> FileService : 43. File Metadata
+FileService --> FileStorage : 44. Read File
+FileStorage --> FileService : 45. File Stream
+FileService --> FileController : 46. File Response
+FileController --> Gateway : 47. File Stream
+Gateway --> Frontend : 48. File Data
+Frontend --> User : 49. File Downloaded
+
+' File List Flow
+User --> Frontend : 50. List Files Request
+Frontend --> Gateway : 51. List Request
+Gateway --> JWTFilter : 52. Validate Token
+JWTFilter --> FileController : 53. Authenticated Request
+FileController --> FileService : 54. Get User Files
+FileService --> FileDB : 55. Query User Files
+FileDB --> FileService : 56. File List
+FileService --> FileController : 57. File List Response
+FileController --> Gateway : 58. HTTP Response
+Gateway --> Frontend : 59. File List
+Frontend --> User : 60. Display Files
+
+note right of User
+  - Mobile App (React Native)
+  - Web App (React/TypeScript)
+  - Authentication required
+end note
+
+note right of Gateway
+  - Nginx Reverse Proxy
+  - Load Balancing
+  - SSL Termination
+  - CORS Handling
+end note
+
+note right of AuthService
+  - Password Hashing (BCrypt)
+  - JWT Token Generation
+  - Email Validation
+  - User Management
+end note
+
+note right of FileService
+  - File Type Validation
+  - Size Limit Check
+  - Storage Management
+  - Access Control
+end note
+
+note right of UserDB
+  - User Collection
+  - Email (unique)
+  - Password (hashed)
+  - Created/Updated timestamps
+end note
+
+note right of FileDB
+  - FileMetadata Collection
+  - User ID (reference)
+  - File path, size, type
+  - Upload timestamp
+end note
+
+@enduml 

@@ -1,0 +1,71 @@
+@startuml Activity_Login
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam activity {
+    BackgroundColor #E8F4FD
+    BorderColor #2E86AB
+    FontColor #2E86AB
+}
+
+title Biểu đồ Hoạt động - Quy trình Đăng nhập
+
+start
+
+:Người dùng nhập email và mật khẩu;
+
+:Frontend gửi request đăng nhập;
+
+:Backend nhận request;
+
+:Validate input data;
+
+if (Dữ liệu hợp lệ?) then (Có)
+    :Tìm user trong database;
+    
+    if (User tồn tại?) then (Có)
+        :So sánh mật khẩu đã hash;
+        
+        if (Mật khẩu đúng?) then (Có)
+            :Tạo JWT token;
+            :Thêm thông tin user vào token;
+            :Set expiration time;
+            
+            :Tạo AuthResponse;
+            :Thêm token vào response;
+            :Thêm thông tin user;
+            
+            :Trả về response thành công;
+            
+            :Frontend nhận response;
+            :Lưu token vào localStorage;
+            :Chuyển hướng đến Dashboard;
+            
+            stop
+        else (Không)
+            :Trả về lỗi "Mật khẩu không đúng";
+        endif
+    else (Không)
+        :Trả về lỗi "Tài khoản không tồn tại";
+    endif
+else (Không)
+    :Trả về lỗi "Dữ liệu không hợp lệ";
+endif
+
+:Frontend hiển thị thông báo lỗi;
+
+stop
+
+note right of "Tạo JWT token"
+  - Include user ID
+  - Include email
+  - Include roles
+  - Set expiration (24h)
+end note
+
+note right of "Lưu token vào localStorage"
+  - Secure storage
+  - Auto-refresh token
+  - Handle token expiration
+end note
+
+@enduml 

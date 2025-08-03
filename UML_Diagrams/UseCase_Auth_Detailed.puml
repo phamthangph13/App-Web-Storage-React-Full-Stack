@@ -1,0 +1,102 @@
+@startuml UseCase_Auth_Detailed
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam usecase {
+    BackgroundColor #E8F4FD
+    BorderColor #2E86AB
+    ArrowColor #2E86AB
+}
+
+title Biểu đồ Use Case Phân Rã - Quản lý Xác thực
+
+actor "Người dùng" as User
+actor "Hệ thống Email" as EmailSystem
+actor "Database" as DB
+
+rectangle "Hệ thống Xác thực" {
+    usecase "Đăng ký tài khoản" as UC1
+    usecase "Xác thực thông tin đăng ký" as UC1_1
+    usecase "Kiểm tra email tồn tại" as UC1_2
+    usecase "Mã hóa mật khẩu" as UC1_3
+    usecase "Lưu thông tin người dùng" as UC1_4
+    
+    usecase "Đăng nhập" as UC2
+    usecase "Xác thực thông tin đăng nhập" as UC2_1
+    usecase "Kiểm tra tài khoản tồn tại" as UC2_2
+    usecase "Xác thực mật khẩu" as UC2_3
+    usecase "Tạo JWT token" as UC2_4
+    usecase "Trả về thông tin đăng nhập" as UC2_5
+    
+    usecase "Quên mật khẩu" as UC3
+    usecase "Kiểm tra email tồn tại" as UC3_1
+    usecase "Tạo token reset" as UC3_2
+    usecase "Lưu token vào database" as UC3_3
+    usecase "Gửi email reset" as UC3_4
+    
+    usecase "Đặt lại mật khẩu" as UC4
+    usecase "Xác thực token reset" as UC4_1
+    usecase "Kiểm tra token hết hạn" as UC4_2
+    usecase "Cập nhật mật khẩu mới" as UC4_3
+    usecase "Xóa token reset" as UC4_4
+    
+    usecase "Đăng xuất" as UC5
+    usecase "Vô hiệu hóa token" as UC5_1
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+
+UC1 ..> UC1_1 : <<include>>
+UC1 ..> UC1_2 : <<include>>
+UC1 ..> UC1_3 : <<include>>
+UC1 ..> UC1_4 : <<include>>
+
+UC2 ..> UC2_1 : <<include>>
+UC2 ..> UC2_2 : <<include>>
+UC2 ..> UC2_3 : <<include>>
+UC2 ..> UC2_4 : <<include>>
+UC2 ..> UC2_5 : <<include>>
+
+UC3 ..> UC3_1 : <<include>>
+UC3 ..> UC3_2 : <<include>>
+UC3 ..> UC3_3 : <<include>>
+UC3 ..> UC3_4 : <<include>>
+
+UC4 ..> UC4_1 : <<include>>
+UC4 ..> UC4_2 : <<include>>
+UC4 ..> UC4_3 : <<include>>
+UC4 ..> UC4_4 : <<include>>
+
+UC5 ..> UC5_1 : <<include>>
+
+UC1_4 ..> DB : <<include>>
+UC2_2 ..> DB : <<include>>
+UC3_1 ..> DB : <<include>>
+UC3_3 ..> DB : <<include>>
+UC4_1 ..> DB : <<include>>
+UC4_3 ..> DB : <<include>>
+
+UC3_4 ..> EmailSystem : <<include>>
+
+note right of UC1_1
+  - Validate email format
+  - Validate password strength
+  - Validate required fields
+end note
+
+note right of UC2_4
+  - Generate JWT with user info
+  - Set expiration time
+  - Include user roles
+end note
+
+note right of UC3_2
+  - Generate unique token
+  - Set expiration (24h)
+  - Link to user account
+end note
+
+@enduml 

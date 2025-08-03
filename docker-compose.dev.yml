@@ -1,0 +1,116 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:6.0
+    container_name: p2p-mongodb-dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: p2p_app_dev
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+      - ./backend/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - p2p-dev-network
+
+  # Spring Boot Backend (Development)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: p2p-backend-dev
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATA_MONGODB_URI: mongodb://admin:password123@mongodb:27017/p2p_app_dev?authSource=admin
+      JWT_SECRET: dev-jwt-secret-key
+      JWT_EXPIRATION: 86400000
+      EMAIL_HOST: smtp.gmail.com
+      EMAIL_PORT: 587
+      EMAIL_USERNAME: your-email@gmail.com
+      EMAIL_PASSWORD: your-app-password
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongodb
+    networks:
+      - p2p-dev-network
+    volumes:
+      - ./backend:/app
+      - ./backend/uploads:/app/uploads
+      - backend_maven_cache:/root/.m2
+
+  # React Website Frontend (Development)
+  website:
+    build:
+      context: ./websitep2p
+      dockerfile: Dockerfile.dev
+    container_name: p2p-website-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - backend
+    networks:
+      - p2p-dev-network
+    volumes:
+      - ./websitep2p:/app
+      - /app/node_modules
+
+  # React Native/Expo Mobile App (Development)
+  mobile:
+    build:
+      context: ./AppP2PExpo
+      dockerfile: Dockerfile.dev
+    container_name: p2p-mobile-dev
+    restart: unless-stopped
+    ports:
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+    environment:
+      EXPO_DEVTOOLS_LISTEN_ADDRESS: 0.0.0.0
+      REACT_APP_API_URL: http://localhost:8080
+    depends_on:
+      - backend
+    networks:
+      - p2p-dev-network
+    volumes:
+      - ./AppP2PExpo:/app
+      - /app/node_modules
+
+  # MongoDB Express (Optional - for database management)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: p2p-mongo-express
+    restart: unless-stopped
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password123
+      ME_CONFIG_MONGODB_URL: mongodb://admin:password123@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: password123
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+    networks:
+      - p2p-dev-network
+
+volumes:
+  mongodb_dev_data:
+    driver: local
+  backend_maven_cache:
+    driver: local
+
+networks:
+  p2p-dev-network:
+    driver: bridge 

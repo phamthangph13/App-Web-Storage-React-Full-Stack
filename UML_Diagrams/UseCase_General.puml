@@ -1,0 +1,73 @@
+@startuml UseCase_General
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam usecase {
+    BackgroundColor #E8F4FD
+    BorderColor #2E86AB
+    ArrowColor #2E86AB
+}
+
+title Biểu đồ Use Case Tổng Quát - Hệ thống P2P
+
+actor "Người dùng" as User
+actor "Quản trị viên" as Admin
+actor "Hệ thống Email" as EmailSystem
+
+rectangle "Hệ thống P2P" {
+    usecase "Đăng ký tài khoản" as UC1
+    usecase "Đăng nhập" as UC2
+    usecase "Đăng xuất" as UC3
+    usecase "Quên mật khẩu" as UC4
+    usecase "Đặt lại mật khẩu" as UC5
+    usecase "Tải file lên" as UC6
+    usecase "Tải file xuống" as UC7
+    usecase "Xem danh sách file" as UC8
+    usecase "Xem thông tin file" as UC9
+    usecase "Xóa file" as UC10
+    usecase "Đổi tên file" as UC11
+    usecase "Xem trước file" as UC12
+    usecase "Lọc file theo loại" as UC13
+    usecase "Quản lý người dùng" as UC14
+    usecase "Quản lý hệ thống" as UC15
+    usecase "Gửi email thông báo" as UC16
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+User --> UC8
+User --> UC9
+User --> UC10
+User --> UC11
+User --> UC12
+User --> UC13
+
+Admin --> UC14
+Admin --> UC15
+
+UC4 ..> UC16 : <<include>>
+UC5 ..> UC16 : <<include>>
+
+note right of UC1
+  - Nhập thông tin cá nhân
+  - Xác thực email
+  - Tạo tài khoản mới
+end note
+
+note right of UC6
+  - Chọn file từ thiết bị
+  - Upload lên server
+  - Lưu metadata vào DB
+end note
+
+note right of UC7
+  - Chọn file cần tải
+  - Xác thực quyền truy cập
+  - Tải file về thiết bị
+end note
+
+@enduml 

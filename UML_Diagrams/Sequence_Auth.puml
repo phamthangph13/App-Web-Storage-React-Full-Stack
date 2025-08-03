@@ -1,0 +1,104 @@
+@startuml Sequence_Auth
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam sequence {
+    ArrowColor #2E86AB
+    ActorBorderColor #2E86AB
+    LifeLineBorderColor #2E86AB
+    ParticipantBorderColor #2E86AB
+    ParticipantBackgroundColor #E8F4FD
+}
+
+title Biểu đồ Tiến trình - Luồng Xác thực
+
+actor "User" as U
+participant "Frontend" as F
+participant "AuthController" as AC
+participant "AuthService" as AS
+participant "UserRepository" as UR
+participant "JwtUtil" as JWT
+participant "Database" as DB
+
+== Đăng nhập ==
+
+U -> F: Nhập email/password
+F -> AC: POST /auth/login
+AC -> AS: login(LoginRequest)
+AS -> UR: findByEmail(email)
+UR -> DB: Query user by email
+DB --> UR: User data
+UR --> AS: User object
+
+alt User tồn tại
+    AS -> AS: validatePassword(password, user.password)
+    
+    alt Mật khẩu đúng
+        AS -> JWT: generateToken(user)
+        JWT --> AS: JWT token
+        AS -> AS: createAuthResponse(user, token)
+        AS --> AC: AuthResponse
+        AC --> F: 200 OK + AuthResponse
+        F -> F: Lưu token vào localStorage
+        F --> U: Chuyển hướng đến Dashboard
+    else Mật khẩu sai
+        AS --> AC: Error "Invalid credentials"
+        AC --> F: 401 Unauthorized
+        F --> U: Hiển thị lỗi
+    end
+else User không tồn tại
+    AS --> AC: Error "User not found"
+    AC --> F: 401 Unauthorized
+    F --> U: Hiển thị lỗi
+end
+
+== Đăng ký ==
+
+U -> F: Nhập thông tin đăng ký
+F -> AC: POST /auth/register
+AC -> AS: register(RegisterRequest)
+AS -> UR: findByEmail(email)
+UR -> DB: Query user by email
+DB --> UR: null (user chưa tồn tại)
+UR --> AS: null
+
+AS -> AS: encodePassword(password)
+AS -> UR: save(user)
+UR -> DB: Insert new user
+DB --> UR: Saved user
+UR --> AS: User object
+AS --> AC: Success message
+AC --> F: 200 OK + Success
+F --> U: Hiển thị thông báo thành công
+
+== Quên mật khẩu ==
+
+U -> F: Nhập email
+F -> AC: POST /auth/forgot-password
+AC -> AS: forgotPassword(ForgotPasswordRequest)
+AS -> UR: findByEmail(email)
+UR -> DB: Query user by email
+DB --> UR: User data
+UR --> AS: User object
+
+AS -> AS: generateResetToken()
+AS -> AS: saveResetToken(user, token)
+AS -> AS: sendResetEmail(user, token)
+AS --> AC: Success message
+AC --> F: 200 OK + Success
+F --> U: Hiển thị thông báo
+
+== Đặt lại mật khẩu ==
+
+U -> F: Nhập token và mật khẩu mới
+F -> AC: POST /auth/reset-password
+AC -> AS: resetPassword(ResetPasswordRequest)
+AS -> AS: validateResetToken(token)
+AS -> AS: updatePassword(user, newPassword)
+AS -> UR: save(user)
+UR -> DB: Update user password
+DB --> UR: Updated user
+AS --> AC: Success message
+AC --> F: 200 OK + Success
+F --> U: Hiển thị thông báo thành công
+
+@enduml 

@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:6.0
+    container_name: p2p-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: p2p_app
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./backend/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - p2p-network
+
+  # Spring Boot Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: p2p-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATA_MONGODB_URI: mongodb://admin:password123@mongodb:27017/p2p_app?authSource=admin
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      JWT_EXPIRATION: 86400000
+      EMAIL_HOST: smtp.gmail.com
+      EMAIL_PORT: 587
+      EMAIL_USERNAME: your-email@gmail.com
+      EMAIL_PASSWORD: your-app-password
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongodb
+    networks:
+      - p2p-network
+    volumes:
+      - ./backend/uploads:/app/uploads
+
+  # React Website Frontend
+  website:
+    build:
+      context: ./websitep2p
+      dockerfile: Dockerfile
+    container_name: p2p-website
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - p2p-network
+
+  # React Native/Expo Mobile App (Development)
+  mobile:
+    build:
+      context: ./AppP2PExpo
+      dockerfile: Dockerfile
+    container_name: p2p-mobile
+    restart: unless-stopped
+    ports:
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+    environment:
+      EXPO_DEVTOOLS_LISTEN_ADDRESS: 0.0.0.0
+    depends_on:
+      - backend
+    networks:
+      - p2p-network
+    volumes:
+      - ./AppP2PExpo:/app
+      - /app/node_modules
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: p2p-nginx
+    restart: unless-stopped
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - website
+      - backend
+    networks:
+      - p2p-network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  p2p-network:
+    driver: bridge 
